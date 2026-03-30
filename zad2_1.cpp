@@ -21,19 +21,15 @@ struct Wezel {
 	}
 };
 
-//budowa drzewa, mniejsze lewo, wieksze prawo
-Wezel* wstaw(Wezel* korzen, int x) {
-	// jesli miejsce jest puste, zrob nowy wezel
-	if (!korzen) {
+Wezel* wstaw(Wezel* korzen, int x) { //budowa drzewa, mniejsze lewo, wieksze prawo
+	if (!korzen) { // jesli miejsce jest puste, zrob nowy wezel
 		return new Wezel(x);
 	}
 	porownania++;
-	// jesli x jest mniejszy od wartosci obecnego wez³a
-	if (x < korzen->wartosc) {
+	if (x < korzen->wartosc) { // jesli x jest mniejszy od wartosci obecnego wez³a
 		korzen->lewy = wstaw(korzen->lewy, x);
 	}
-	//jesli x jest wiekszy
-	else if (x > korzen->wartosc) {
+	else if (x > korzen->wartosc) { //jesli x jest wiekszy
 		korzen->prawy = wstaw(korzen->prawy, x);
 	}
 	return korzen; // Jeœli x jest równy, nic nie robimy
@@ -63,7 +59,7 @@ void wyswietl(Wezel* wezel, int wciecie = 0) {
 	wyswietl(wezel->lewy, wciecie);
 }
 
-void znajdzmin(Wezel* wezel) {
+void znajdzmin(Wezel* wezel) { //idzie maxymalnie w lewo bo tam najmniejszy element
 	cout << "min: ";
 	int c = 0;
 	while(wezel) {
@@ -77,7 +73,7 @@ void znajdzmin(Wezel* wezel) {
 	cout << "\nPorownania: " << c << endl;
 }
 
-void znajdzmax(Wezel* wezel) {
+void znajdzmax(Wezel* wezel) { // idzie maxymalnie w prawo bo tam najwiekszy element
 	cout << "max: ";
 	int c = 0;
 	while(wezel) {
@@ -91,7 +87,7 @@ void znajdzmax(Wezel* wezel) {
 	cout << "\nPorownania: " << c << endl;
 }
 
-Wezel* znajdz(Wezel* wezel, int x, int level, int &znalezionolevel) {
+Wezel* znajdz(Wezel* wezel, int x, int level, int &znalezionolevel) { //szukanie elementu
 	if (!wezel) {
 		return nullptr;
 	}
@@ -107,7 +103,7 @@ Wezel* znajdz(Wezel* wezel, int x, int level, int &znalezionolevel) {
 	}
 }
 
-void wypiszlevel(Wezel* wezel, int target, int teraz = 0) {
+void wypiszlevel(Wezel* wezel, int target, int teraz = 0) { //wyswietlanie poddrzewa na konkretnym poziomie
 	if (!wezel) {
 		return;
 	}
@@ -119,7 +115,7 @@ void wypiszlevel(Wezel* wezel, int target, int teraz = 0) {
 	wypiszlevel(wezel->prawy, target, teraz+1);
 }
 
-void preorder(Wezel* wezel) {
+void preorder(Wezel* wezel) { // korzen -> lewy -> prawy
 	if (!wezel) {
 		return;
 	}
@@ -128,7 +124,7 @@ void preorder(Wezel* wezel) {
 	preorder(wezel->prawy);
 }
 
-void odkonca(Wezel* wezel) {
+void odkonca(Wezel* wezel) { //prawy -> korzen -> lewy
 	if (!wezel) {
 		return;
 	}
@@ -162,14 +158,11 @@ Wezel* usunZPoddrzewem(Wezel* wezel, int x, bool calepoddrzewo) {
 	} else if (x > wezel->wartosc) {
 		wezel->prawy = usunZPoddrzewem(wezel->prawy, x, calepoddrzewo);
 	} else {
-		// USUÑ CA£E PODDRZEWO
-		if (calepoddrzewo) {
+		if (calepoddrzewo) { //usuwa cale poddrzewo
 			usunPoddrzewo(wezel);
 			return nullptr;
 		}
-
-		// standardowe usuwanie
-		if (!wezel->lewy) {
+		if (!wezel->lewy) { //usuwa tylko element
 			Wezel* tmp = wezel->prawy;
 			delete wezel;
 			return tmp;
@@ -179,8 +172,7 @@ Wezel* usunZPoddrzewem(Wezel* wezel, int x, bool calepoddrzewo) {
 			delete wezel;
 			return tmp;
 		}
-
-		Wezel* tmp = znajdzminwezel(wezel->prawy);
+		Wezel* tmp = znajdzminwezel(wezel->prawy); //gdy dwojka dzieci, najmniejsza wart wieksza od usuwanej
 		wezel->wartosc = tmp->wartosc;
 		wezel->prawy = usunZPoddrzewem(wezel->prawy, tmp->wartosc, false);
 	}
@@ -201,7 +193,7 @@ Wezel* rotujLewo(Wezel* wezel) {
 	return nowy;
 }
 
-Wezel* stworzVine(Wezel* korzen) {
+Wezel* stworzVine(Wezel* korzen) { //rotacja prawo -> struktura liniowa
 	Wezel dummy(0);
 	dummy.prawy = korzen;
 
@@ -220,7 +212,7 @@ Wezel* stworzVine(Wezel* korzen) {
 	return dummy.prawy;
 }
 
-Wezel* kompresuj(Wezel* korzen, int count) {
+Wezel* kompresuj(Wezel* korzen, int count) { // rotacja lewo co drugi wezel -> zrownowazone drzewo
 	Wezel dummy(0);
 	dummy.prawy = korzen;
 	Wezel* tmp = &dummy;
@@ -237,26 +229,16 @@ Wezel* kompresuj(Wezel* korzen, int count) {
 }
 
 Wezel* DSW(Wezel* korzen) {
-	// 1. vine
-	korzen = stworzVine(korzen);
-
-	// 2. liczba wêz³ów
-	int n = liczwezly(korzen);
-
-	// 3. najwiêksza potêga 2 <= n+1
-	int m = 1;
+	korzen = stworzVine(korzen); // 1. vine
+	int n = liczwezly(korzen); // 2. liczba wêz³ów
+	int m = 1; // 3. najwiêksza potêga 2 <= n+1
 	while (m <= n) m <<= 1;
 	m = m / 2 - 1;
-
-	// 4. pierwsza kompresja
-	korzen = kompresuj(korzen, n - m);
-
-	// 5. kolejne
-	while (m > 1) {
+	korzen = kompresuj(korzen, n - m); // 4. pierwsza kompresja
+	while (m > 1) { // 5. kolejne
 		m /= 2;
 		korzen = kompresuj(korzen, m);
 	}
-
 	return korzen;
 }
 
@@ -425,8 +407,6 @@ int main() {
 			cout << "Nowa wysokosc: " << podajwys(korzen) << endl;
 			cout << "Czas: " << chrono::duration<double>(stop - start).count() << endl;
 		}
-
 	} while (wybor != 0);
-
 	return 0;
 }
